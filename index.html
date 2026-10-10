@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Xadrez - Plataforma Web Estilo Chess.com</title>
+  <link rel="stylesheet" href="/src/styles/main.css" />
+</head>
+<body>
+  <!-- Cabeçalho Principal -->
+  <header class="app-header">
+    <div class="logo-container">
+      <svg class="logo-icon" viewBox="0 0 24 24">
+        <path d="M19 22H5V20H19V22M17 10C15.58 10 14.26 10.77 13.55 12C13.24 11.23 12.63 10.59 11.87 10.22C11.5 9.47 11 8.84 10.37 8.37C11.37 7.7 12 6.43 12 5C12 2.79 10.21 1 8 1S4 2.79 4 5C4 6.43 4.63 7.7 5.63 8.37C5 8.84 4.5 9.47 4.13 10.22C3.37 10.59 2.76 11.23 2.45 12C1.74 10.77 0.42 10 0 10V18H20V10M6 5C6 3.9 6.9 3 8 3S10 3.9 10 5 9.1 7 8 7 6 6.1 6 5M17 18H3V14C3 13.45 3.45 13 4 13S5 13.45 5 14V16H7V14C7 13.45 7.45 13 8 13S9 13.45 9 14V16H11V14C11 13.45 11.45 13 12 13S13 13.45 13 14V16H15V14C15 13.45 15.45 13 16 13S17 13.45 17 14V18Z"/>
+      </svg>
+      <h1 class="logo-title">Meu Xadrez</h1>
+      <span class="logo-badge">PRO</span>
+    </div>
+
+    <div class="header-actions">
+      <button id="btn-sound-toggle" class="btn-icon" title="Alternar Som" aria-label="Alternar Som">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+      </button>
+      <button id="btn-flip-board" class="btn-icon" title="Virar Tabuleiro" aria-label="Virar Tabuleiro">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M7 7h10v2l3-3-3-3v2H5v6h2V7zm10 10H7v-2l-3 3 3 3v-2h12v-6h-2v4z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Corpo Principal -->
+  <main class="main-layout">
+    <!-- Coluna 1: Palco do Tabuleiro (Eval Bar + Board + Jogadores) -->
+    <section class="chess-stage">
+      <!-- Barra do Jogador Superior (Oponente / Bot) -->
+      <div class="player-bar" id="opponent-bar">
+        <div class="player-info">
+          <div class="player-avatar" id="opponent-avatar"></div>
+          <div class="player-meta">
+            <span class="player-name" id="opponent-name">Pipoca</span>
+            <span class="player-elo" id="opponent-elo">400 ELO (Iniciante)</span>
+          </div>
+        </div>
+        <div class="captured-pieces" id="opponent-captured"></div>
+      </div>
+
+      <!-- Tabuleiro com Barra de Avaliação Vertical -->
+      <div class="board-container">
+        <div id="eval-bar-slot"></div>
+        <div id="board-slot" style="flex: 1; height: 100%;"></div>
+      </div>
+
+      <!-- Barra do Jogador Inferior (Você) -->
+      <div class="player-bar" id="user-bar">
+        <div class="player-info">
+          <div class="player-avatar">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="48" fill="#43a047"/>
+              <circle cx="50" cy="38" r="20" fill="#ffffff"/>
+              <path d="M 20 85 C 20 62 80 62 80 85 Z" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div class="player-meta">
+            <span class="player-name">Você</span>
+            <span class="player-elo" id="user-elo">1500 ELO</span>
+          </div>
+        </div>
+        <div class="captured-pieces" id="user-captured"></div>
+      </div>
+    </section>
+
+    <!-- Coluna 2: Painel de Controle e Modos de Jogo -->
+    <aside class="control-panel">
+      <!-- Abas de Navegação -->
+      <nav class="panel-tabs">
+        <button class="tab-btn active" data-tab="bots">
+          <span>🤖</span> Jogar vs Bots
+        </button>
+        <button class="tab-btn" data-tab="moves">
+          <span>📜</span> Lances
+        </button>
+        <button class="tab-btn" data-tab="review">
+          <span>🔍</span> Game Review
+        </button>
+      </nav>
+
+      <!-- Conteúdo da Aba: BOTS -->
+      <div class="tab-content" id="tab-bots">
+        <div class="bots-grid" id="bots-list"></div>
+
+        <div class="side-selector">
+          <button class="side-btn active" data-color="white">
+            <span>⚪</span> Brancas
+          </button>
+          <button class="side-btn" data-color="random">
+            <span>🎲</span> Aleatório
+          </button>
+          <button class="side-btn" data-color="black">
+            <span>⚫</span> Pretas
+          </button>
+        </div>
+
+        <button id="btn-start-bot-game" class="btn-primary">
+          Jogar contra <span id="selected-bot-label">Pipoca</span>
+        </button>
+      </div>
+
+      <!-- Conteúdo da Aba: LANCES -->
+      <div class="tab-content hidden" id="tab-moves">
+        <div class="moves-list-wrapper">
+          <table class="moves-table">
+            <tbody id="moves-table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="moves-nav-controls">
+          <button id="btn-nav-first" class="moves-nav-btn" title="Início">|&lt;</button>
+          <button id="btn-nav-prev" class="moves-nav-btn" title="Anterior">&lt;</button>
+          <button id="btn-nav-next" class="moves-nav-btn" title="Próximo">&gt;</button>
+          <button id="btn-nav-last" class="moves-nav-btn" title="Fim">&gt;|</button>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-request-review" class="btn-primary" style="flex: 2;">
+            🔍 Iniciar Game Review
+          </button>
+          <button id="btn-reset-game" class="btn-secondary" style="flex: 1;">
+            Reiniciar
+          </button>
+        </div>
+      </div>
+
+      <!-- Conteúdo da Aba: GAME REVIEW -->
+      <div class="tab-content hidden" id="tab-review">
+        <!-- Progresso da Análise -->
+        <div class="progress-box hidden" id="review-progress-box">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+            <span>Analisando posições com Stockfish...</span>
+            <span id="review-progress-pct">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="review-progress-fill"></div>
+          </div>
+        </div>
+
+        <!-- Relatório de Acurácia -->
+        <div class="review-header-card" id="review-summary-card">
+          <div style="font-weight: 700; font-size: 0.95rem;">Precisão da Partida (Accuracy)</div>
+          <div class="review-accuracy-container">
+            <div class="accuracy-box">
+              <span class="accuracy-val" id="acc-white">--%</span>
+              <span class="accuracy-label">Brancas</span>
+            </div>
+            <div style="font-size: 1.5rem; color: var(--border-color); font-weight: 300;">vs</div>
+            <div class="accuracy-box">
+              <span class="accuracy-val" id="acc-black">--%</span>
+              <span class="accuracy-label">Pretas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico Interativo de Vantagem -->
+        <div class="chart-container">
+          <canvas id="eval-chart"></canvas>
+        </div>
+
+        <!-- Estatísticas Detalhadas por Categoria de Lance -->
+        <div class="review-stats-grid" id="review-stats-grid"></div>
+
+        <div class="moves-nav-controls">
+          <button id="btn-review-prev" class="moves-nav-btn" title="Lance Anterior">&lt; Anterior</button>
+          <button id="btn-review-next" class="moves-nav-btn" title="Próximo Lance">Próximo &gt;</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Modal de Fim de Jogo -->
+  <div class="game-over-modal hidden" id="game-over-modal">
+    <div class="game-over-card">
+      <div class="game-over-icon" id="go-icon">🏆</div>
+      <h2 class="game-over-title" id="go-title">Vitória das Brancas!</h2>
+      <p class="game-over-reason" id="go-reason">Por xeque-mate.</p>
+      <div class="game-over-actions">
+        <button id="btn-go-review" class="btn-primary">
+          🔍 Revisar Partida com IA
+        </button>
+        <button id="btn-go-rematch" class="btn-secondary">
+          Jogar Novamente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
