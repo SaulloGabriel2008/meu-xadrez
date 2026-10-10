@@ -75,5 +75,6 @@ O sistema compreende:
 ---
 
 ## 5. Histórico de Commits (GitHub)
-- `feat(chess-app): implementar plataforma completa de xadrez com bots e game review` (Pendente push)
+- `1bd0575` - `feat(chess-app): implementar plataforma completa de xadrez com bots e game review`
+
 
