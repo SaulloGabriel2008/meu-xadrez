@@ -2,7 +2,7 @@
 
 - **Data de Criação:** 2026-10-10 14:23:00
 - **Branch Ativa:** main
-- **Status:** [EM PROGRESSO - IMPLEMENTAÇÃO]
+- **Status:** [CONCLUÍDO - 100% APROVADO]
 - **Responsáveis:** Subagente de Implementação & Subagente de Verificação
 
 ---
@@ -17,8 +17,8 @@ O sistema compreende:
 ---
 
 ## 2. Arquivos & Módulos Envolvidos
-- `package.json` - Dependências (`chess.js`, `chart.js`), devDependencies (`vite`, `vitest`, etc.) e scripts de build/teste.
-- `vite.config.js` - Configuração do Vite com suporte a Web Worker e Vitest.
+- `package.json` - Dependências (`chess.js`, `chart.js`), devDependencies (`vite`, `vitest`, `jsdom`) e scripts de build/teste.
+- `vite.config.js` - Configuração do Vite com suporte a Web Worker, Vitest e jsdom.
 - `index.html` - Estrutura semântica da aplicação, contêiner do tabuleiro, barra de avaliação, painel de bots, controles de revisão e modais.
 - `public/stockfish.js` - Script do motor de xadrez Stockfish para Web Worker com protocolo UCI.
 - `src/main.js` - Ponto de entrada e máquina de estados da aplicação (rotas de estado, eventos, sincronização entre módulos).
@@ -30,7 +30,7 @@ O sistema compreende:
 - `src/game/boardController.js` - Controlador do tabuleiro, peças SVG elegantes, drag-and-drop, clique, destaque de lances e setas.
 - `src/ui/evalBar.js` - Controlador da barra de avaliação vertical suave.
 - `src/ui/chartRenderer.js` - Integração com Chart.js para o gráfico de avaliação interativo sincronizado.
-- `tests/unit/*.test.js` - Suíte de testes automatizados unitários e de integração.
+- `tests/unit/*.test.js` - Suíte de testes automatizados unitários e de integração (7 arquivos, 76 testes).
 
 ---
 
@@ -52,29 +52,40 @@ O sistema compreende:
 - [x] Git commit e push das alterações de implementação (`feat(chess-app): ...`)
 
 ### Fase 2: Verificação e Testes (Subagente de Testes)
-- [x] Identificação dos runners e ferramentas de teste (`npm test` com Vitest)
-- [x] Criação de testes unitários abrangentes para o motor de revisão (`reviewEngine.test.js`)
-- [x] Criação de testes para o serviço UCI e bots (`bots.test.js`, `stockfishService.test.js`)
-- [x] Criação de testes para síntese de áudio (`audio.test.js`)
+- [x] Identificação dos runners e ferramentas de teste (`npm test` com Vitest em ambiente jsdom)
+- [x] Expansão abrangente de testes para motor de revisão (`tests/unit/reviewEngine.test.js` - 28 testes)
+- [x] Expansão de testes para serviço UCI (`tests/unit/stockfishService.test.js` - 13 testes)
+- [x] Expansão de testes para os bots e calibrações (`tests/unit/bots.test.js` - 7 testes)
+- [x] Expansão de testes para sintetizador de áudio Web Audio API (`tests/unit/audio.test.js` - 9 testes)
+- [x] Criação de testes para controlador de tabuleiro e SVG (`tests/unit/boardController.test.js` - 10 testes)
+- [x] Criação de testes para barra de avaliação vertical (`tests/unit/evalBar.test.js` - 4 testes)
+- [x] Criação de testes para renderizador de gráficos Chart.js (`tests/unit/chartRenderer.test.js` - 5 testes)
 - [x] Execução da suíte de testes com validação de build no Vite (`npm run build`)
 - [x] Loop autônomo de autocorreção até atingir 100% de sucesso
-- [ ] Git commit e push das correções e novos testes (`test(chess-app): ...`)
+- [x] Git commit e push das correções e novos testes (`test(chess-app): ...`)
 
 ---
 
 ## 4. Registro de Execução & Testes
-- **Comando de Teste:** `npm test` (Vitest v3.2.7)
-- **Total de Testes:** 23 testes executados em 4 arquivos de teste (100% aprovados)
-  - `tests/unit/audio.test.js` (2 testes) - OK
-  - `tests/unit/stockfishService.test.js` (4 testes) - OK
-  - `tests/unit/bots.test.js` (3 testes) - OK
-  - `tests/unit/reviewEngine.test.js` (14 testes) - OK
-- **Build de Produção:** `npm run build` com Vite v6.4.4 concluído com sucesso (`dist/` gerado)
-- **Correções Aplicadas:** Nenhuma correção necessária; implementação 100% em conformidade na primeira rodada
+- **Comando de Teste:** `npm test` (Vitest v3.2.7 em ambiente jsdom)
+- **Total de Testes:** 76 testes executados em 7 arquivos de teste (100% aprovados, 0 falhas)
+  - `tests/unit/reviewEngine.test.js` (28 testes) - OK
+  - `tests/unit/stockfishService.test.js` (13 testes) - OK
+  - `tests/unit/boardController.test.js` (10 testes) - OK
+  - `tests/unit/audio.test.js` (9 testes) - OK
+  - `tests/unit/bots.test.js` (7 testes) - OK
+  - `tests/unit/chartRenderer.test.js` (5 testes) - OK
+  - `tests/unit/evalBar.test.js` (4 testes) - OK
+- **Build de Produção:** `npm run build` com Vite v6.4.4 concluído com sucesso (`dist/` gerado sem avisos ou erros)
+- **Correções Aplicadas no Loop Autônomo de Autocorreção:**
+  1. `tests/unit/audio.test.js`: Inclusão de `afterEach(() => vi.restoreAllMocks())` para isolar espiões de chamada de `AudioContext` entre testes de fallback e testes de sintetizador ativo.
+  2. `tests/unit/boardController.test.js`: Ajuste da posição FEN no teste de promoção de peão para garantir casa `e8` desocupada pelo rei preto (movendo o rei para `a8`), respeitando rigorosamente as regras do xadrez da `chess.js`.
+  3. `tests/unit/chartRenderer.test.js`: Isolamento da biblioteca `chart.js` através de mock modular com gravação de configurações, permitindo verificação estrita de conversão de centipawns/mate em pontos sem dependência de drivers gráficos nativos C++.
 
 ---
 
 ## 5. Histórico de Commits (GitHub)
 - `1bd0575` - `feat(chess-app): implementar plataforma completa de xadrez com bots e game review`
+- `6d8f0ca` - `test(chess-app): validação e correções de testes 100% aprovados`
 
 
